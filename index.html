@@ -483,21 +483,37 @@ const MEL=MELRAW.map(x=>({f:NF[x[0]]||0,d:x[1]}));
 const BASS=[82.41,82.41,110,110,123.47,123.47,110,82.41];
 const SPB=0.092;
 function audioInit(){
- if(AUD.ctx){if(AUD.ctx.state==='suspended')AUD.ctx.resume();return;}
- try{AUD.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
- AUD.master=AUD.ctx.createGain();AUD.master.gain.value=0.55;AUD.master.connect(AUD.ctx.destination);
- AUD.musicGain=AUD.ctx.createGain();AUD.musicGain.gain.value=0.16;AUD.musicGain.connect(AUD.master);
- AUD.nextTime=AUD.ctx.currentTime+0.1;AUD.timer=setInterval(musicScheduler,40);
+ if(!AUD.ctx){try{AUD.ctx=new (window.AudioContext||window.webkitAudioContext)();AUD.master=AUD.ctx.createGain();AUD.master.gain.value=0.55;AUD.master.connect(AUD.ctx.destination);}catch(e){}}
+ if(AUD.ctx&&AUD.ctx.state==='suspended')AUD.ctx.resume();
+ buildMusic();
 }
-function mtone(freq,start,dur){const c=AUD.ctx,o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=freq;
- g.gain.setValueAtTime(0.0001,start);g.gain.linearRampToValueAtTime(0.5,start+0.012);g.gain.exponentialRampToValueAtTime(0.0001,start+dur*0.92);
- const trem=c.createGain();trem.gain.value=1;const lfo=c.createOscillator(),ld=c.createGain();lfo.type='sine';lfo.frequency.value=15;ld.gain.value=0.4;lfo.connect(ld);ld.connect(trem.gain);
- o.connect(g);g.connect(trem);trem.connect(AUD.musicGain);lfo.start(start);lfo.stop(start+dur);o.start(start);o.stop(start+dur);}
-function btone(freq,start,dur){const c=AUD.ctx,o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=freq;g.gain.setValueAtTime(0.22,start);g.gain.exponentialRampToValueAtTime(0.0001,start+dur*0.9);o.connect(g);g.connect(AUD.musicGain);o.start(start);o.stop(start+dur);}
-function musicScheduler(){if(!AUD.ctx)return;const playing=S.musicOn&&(cur==='menu'||cur==='game'||cur==='levels');
- while(AUD.nextTime<AUD.ctx.currentTime+0.25){const note=MEL[AUD.melIdx%MEL.length];
-  if(playing){if(note.f)mtone(note.f,AUD.nextTime,SPB*note.d*0.96);if(Math.floor(AUD.cum)%4===0)btone(BASS[Math.floor(AUD.cum/4)%BASS.length],AUD.nextTime,SPB*4*0.9);}
-  AUD.nextTime+=SPB*note.d;AUD.cum+=note.d;AUD.melIdx++;}}
+/* Musique via élément <audio> (joue même avec l'interrupteur silencieux iOS) */
+let musicEl=null,musicReady=false,musicBuilding=false;
+function buildMusic(){
+ if(musicReady||musicBuilding)return;musicBuilding=true;
+ try{
+  const sr=44100;let beats=0;MEL.forEach(n=>beats+=n.d);const dur=beats*SPB+0.04;
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!OAC){musicBuilding=false;return;}
+  const off=new OAC(1,Math.ceil(sr*dur),sr);const mg=off.createGain();mg.gain.value=0.16;mg.connect(off.destination);
+  let tcur=0,cum=0;
+  for(const note of MEL){
+   if(note.f){const d=SPB*note.d*0.96;const o=off.createOscillator(),g=off.createGain();o.type='triangle';o.frequency.value=note.f;
+    g.gain.setValueAtTime(0.0001,tcur);g.gain.linearRampToValueAtTime(0.5,tcur+0.012);g.gain.exponentialRampToValueAtTime(0.0001,tcur+d*0.92);
+    const trem=off.createGain();trem.gain.value=1;const lfo=off.createOscillator(),ld=off.createGain();lfo.type='sine';lfo.frequency.value=15;ld.gain.value=0.4;lfo.connect(ld);ld.connect(trem.gain);
+    o.connect(g);g.connect(trem);trem.connect(mg);lfo.start(tcur);lfo.stop(tcur+d);o.start(tcur);o.stop(tcur+d);}
+   if(Math.floor(cum)%4===0){const bf=BASS[Math.floor(cum/4)%BASS.length];const d=SPB*4*0.9;const o=off.createOscillator(),g=off.createGain();o.type='square';o.frequency.value=bf;g.gain.setValueAtTime(0.22,tcur);g.gain.exponentialRampToValueAtTime(0.0001,tcur+d*0.9);o.connect(g);g.connect(mg);o.start(tcur);o.stop(tcur+d);}
+   tcur+=SPB*note.d;cum+=note.d;
+  }
+  off.startRendering().then(buf=>{const wav=bufToWav(buf);const blob=new Blob([wav],{type:'audio/wav'});
+   musicEl=new Audio();musicEl.src=URL.createObjectURL(blob);musicEl.loop=true;musicEl.volume=0.45;musicEl.setAttribute('playsinline','');
+   musicReady=true;musicBuilding=false;updateMusicPlayback();}).catch(()=>{musicBuilding=false;});
+ }catch(e){musicBuilding=false;}
+}
+function bufToWav(buf){const ch=buf.getChannelData(0),n=ch.length,sr=buf.sampleRate;const ab=new ArrayBuffer(44+n*2),dv=new DataView(ab);
+ const ws=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i));};
+ ws(0,'RIFF');dv.setUint32(4,36+n*2,true);ws(8,'WAVE');ws(12,'fmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);ws(36,'data');dv.setUint32(40,n*2,true);
+ let o=44;for(let i=0;i<n;i++){const s=Math.max(-1,Math.min(1,ch[i]));dv.setInt16(o,s<0?s*0x8000:s*0x7FFF,true);o+=2;}return ab;}
+function updateMusicPlayback(){if(!musicReady||!musicEl)return;const should=S.musicOn&&(cur==='menu'||cur==='game'||cur==='levels');if(should)musicEl.play().catch(()=>{});else musicEl.pause();}
 function sfx(type){if(!AUD.ctx||!S.sfxOn)return;const c=AUD.ctx,t=c.currentTime;
  const beep=(f,off,dur,wave,vol,to)=>{const o=c.createOscillator(),g=c.createGain();o.type=wave||'square';o.frequency.setValueAtTime(f,t+off);if(to)o.frequency.exponentialRampToValueAtTime(to,t+off+dur);g.gain.setValueAtTime(vol||0.3,t+off);g.gain.exponentialRampToValueAtTime(0.0001,t+off+dur);o.connect(g);g.connect(AUD.master);o.start(t+off);o.stop(t+off+dur+0.02);};
  if(type==='jump')beep(320,0,0.16,'square',0.28,720);
@@ -509,7 +525,7 @@ function sfx(type){if(!AUD.ctx||!S.sfxOn)return;const c=AUD.ctx,t=c.currentTime;
  else if(type==='win'){[523,659,784,1047].forEach((f,i)=>beep(f,i*0.1,0.18,'triangle',0.35));}
  else if(type==='over'){[440,349,262].forEach((f,i)=>beep(f,i*0.16,0.28,'sawtooth',0.3));}
  else if(type==='click')beep(660,0,0.05,'square',0.25);}
-function toggleMusic(){S.musicOn=!S.musicOn;save();audioInit();updateToggles();}
+function toggleMusic(){S.musicOn=!S.musicOn;save();audioInit();updateMusicPlayback();updateToggles();}
 function toggleSfx(){S.sfxOn=!S.sfxOn;save();updateToggles();if(S.sfxOn)sfx('click');}
 function updateToggles(){const m=document.getElementById('tgMusic'),s=document.getElementById('tgSfx');
  if(m){m.textContent=(S.musicOn?'🎵':'🔇')+' Musique';m.classList.toggle('off',!S.musicOn);}
@@ -534,6 +550,7 @@ function go(name){
  if(name==="home")renderHome();
  if(name==="ach")renderAch();
  if(name==="phrase")renderPhrase();
+ updateMusicPlayback();
 }
 
 /* ===== Sprite Jean-Claude ===== */
@@ -715,7 +732,7 @@ function floatText(x,y,txt){gp.floats.push({x,y,txt,t:now()});}
 
 function render(){
  const c=G.ctx,W=G.W,VH=G.viewH,cam=gp.cam,gy=gp.gy,t=gp.t,th=gp.meta.theme,nw=now();
- const camY=(gy+40)-VH;
+ const camY=(gy-VH)+Math.min(190/G.scale,VH*0.42);
  c.setTransform(G.scale,0,0,G.scale,0,0);
  let g=c.createLinearGradient(0,0,0,VH);
  if(th==='snow'){g.addColorStop(0,"#cfe6f5");g.addColorStop(1,"#eef6fb");}
@@ -862,11 +879,12 @@ document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault
 let _lastTouch=0;document.addEventListener('touchend',e=>{const t=Date.now();if(t-_lastTouch<=300)e.preventDefault();_lastTouch=t;},{passive:false});
 window.addEventListener("resize",()=>{if(cur==="splash")drawSplash();if(cur==="game"&&gp){sizeGameCanvas();}});
 window.addEventListener("orientationchange",()=>{setTimeout(()=>{if(cur==="game"&&gp)sizeGameCanvas();if(cur==="splash")drawSplash();},250);});
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&AUD.ctx&&AUD.ctx.state==='running')AUD.ctx.suspend();else if(!document.hidden&&AUD.ctx&&S.musicOn)AUD.ctx.resume();});
+document.addEventListener("visibilitychange",()=>{if(document.hidden){if(AUD.ctx&&AUD.ctx.state==='running')AUD.ctx.suspend();if(musicEl)musicEl.pause();}else{if(AUD.ctx&&S.musicOn)AUD.ctx.resume();updateMusicPlayback();}});
 
 /* déverrouillage audio mobile (iOS exige un geste utilisateur) */
 function unlockAudio(){audioInit();if(AUD.ctx){if(AUD.ctx.state==='suspended')AUD.ctx.resume();
- try{const b=AUD.ctx.createBuffer(1,1,22050),s=AUD.ctx.createBufferSource();s.buffer=b;s.connect(AUD.ctx.destination);s.start(0);}catch(e){}}}
+ try{const b=AUD.ctx.createBuffer(1,1,22050),s=AUD.ctx.createBufferSource();s.buffer=b;s.connect(AUD.ctx.destination);s.start(0);}catch(e){}}
+ updateMusicPlayback();}
 ['pointerdown','touchstart','touchend','click'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
 
 /* ===== Старт ===== */
