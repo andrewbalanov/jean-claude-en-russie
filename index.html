@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2a0714">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Jean-Claude en Russie 🍷🐻</title>
+<style>
+  :root{
+    --bordeaux:#5b0e2d;--bordeaux2:#7a163d;--wine:#9b1b3f;
+    --gold:#e7b54a;--gold2:#c9962f;--cream:#fff7ec;--ink:#2a1018;
+    --green:#3fae6b;--red:#e0556b;--blue:#2f6fed;--card:#ffffff;
+    --shadow:0 10px 30px rgba(40,5,20,.18);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #7a163d 0%, transparent 60%),
+      linear-gradient(160deg,#3d091e 0%, #5b0e2d 45%, #2a0714 100%);
+    color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100dvh;
+  }
+  .app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative}
+  .pix{font-family:"Courier New",ui-monospace,monospace;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+
+  /* ---------- top bar ---------- */
+  .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:14px 16px;
+    background:linear-gradient(180deg,rgba(45,7,22,.96),rgba(45,7,22,.78));backdrop-filter:blur(8px);color:var(--cream)}
+  .logo{font-weight:800;font-size:17px;letter-spacing:.3px;display:flex;align-items:center;gap:7px}
+  .logo small{font-weight:600;opacity:.7;font-size:10px;display:block;letter-spacing:0}
+  .topbar .spacer{flex:1}
+  .stat{display:flex;align-items:center;gap:5px;font-weight:800;font-size:14px;background:rgba(255,255,255,.10);
+    padding:7px 11px;border-radius:30px;border:1px solid rgba(231,181,74,.35)}
+  .stat.fire{color:#ffd27a}.stat.xp{color:#bff0cf}
+
+  /* ---------- screens ---------- */
+  .screen{display:none;flex:1;padding:16px 16px 100px;animation:fade .35s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .panel{background:var(--card);border-radius:22px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+
+  /* ---------- SPLASH ---------- */
+  #scr-splash{padding:0;display:none;position:relative;min-height:100dvh}
+  #scr-splash.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+  #splashCanvas{display:block;width:100%;image-rendering:pixelated;border-radius:0}
+  .splash-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding-top:8%;text-align:center;pointer-events:none}
+  .splash-title{color:var(--gold);font-size:30px;line-height:1.05;text-shadow:3px 3px 0 #5b0e2d,5px 5px 0 rgba(0,0,0,.35)}
+  .splash-title span{display:block;font-size:15px;color:#fff;margin-top:6px;text-shadow:2px 2px 0 #5b0e2d}
+  .splash-sub{color:#ffe1b0;font-size:12px;margin-top:8px;text-shadow:1px 1px 0 #5b0e2d}
+  .press-start{position:absolute;bottom:13%;left:0;right:0;color:#fff;font-size:16px;text-align:center;
+    animation:blink 1s steps(1) infinite;text-shadow:2px 2px 0 #5b0e2d}
+  .press-start small{display:block;color:var(--gold);font-size:12px;margin-top:4px}
+  @keyframes blink{50%{opacity:0}}
+
+  /* ---------- MENU ---------- */
+  .menu-hero{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#7a163d,#3d091e);
+    border:3px solid var(--gold);border-radius:14px;padding:14px;box-shadow:4px 4px 0 rgba(0,0,0,.4);margin-bottom:18px}
+  #menuCanvas{image-rendering:pixelated;flex:none;background:rgba(0,0,0,.18);border-radius:8px}
+  .menu-hero .mh{color:#fff}
+  .menu-hero .mh b{color:var(--gold);font-size:15px;display:block}
+  .menu-hero .mh p{font-size:11px;opacity:.85;margin-top:3px;line-height:1.35}
+  .menu-hero .mh .mini{display:flex;gap:8px;margin-top:8px}
+  .menu-hero .mh .mini span{background:rgba(0,0,0,.25);border-radius:20px;padding:3px 9px;font-size:12px;font-weight:800}
+  .mbtn{display:flex;align-items:center;gap:14px;width:100%;padding:15px 16px;margin-bottom:12px;
+    border:3px solid var(--gold);border-radius:10px;box-shadow:4px 4px 0 rgba(0,0,0,.45);color:#fff;font-weight:800;
+    font-size:16px;cursor:pointer;text-align:left;transition:transform .08s,box-shadow .08s}
+  .mbtn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.45)}
+  .mbtn .mi{font-size:26px;width:32px;text-align:center;flex:none}
+  .mbtn small{display:block;font-weight:600;font-size:11px;opacity:.85;margin-top:2px}
+  .mbtn.play{background:linear-gradient(135deg,#c0392b,#8e1d3d)}
+  .mbtn.les{background:linear-gradient(135deg,#2c6fbb,#3498db)}
+  .mbtn.qz{background:linear-gradient(135deg,#1f8a70,#2ecc71)}
+  .mbtn.ph{background:linear-gradient(135deg,#c98a16,#e67e22)}
+  .mbtn.tr{background:linear-gradient(135deg,#6d4196,#9b59b6)}
+
+  /* ---------- HOME (Уроки) ---------- */
+  .hero{background:linear-gradient(135deg,#fff7ec,#ffe9c9);border:1px solid rgba(201,150,47,.4);border-radius:24px;
+    padding:18px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero h1{font-size:20px;color:var(--bordeaux);line-height:1.2}
+  .hero p{font-size:13px;color:#6a4a35;margin-top:6px;line-height:1.45}
+  .level-pill{display:inline-flex;align-items:center;gap:7px;margin-top:12px;background:var(--bordeaux);color:var(--gold);
+    font-weight:800;font-size:13px;padding:8px 13px;border-radius:30px}
+  .lvlbar{height:12px;background:#eaddc7;border-radius:20px;margin-top:12px;overflow:hidden;border:1px solid #e2cfa9}
+  .lvlbar>i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .lvlmeta{display:flex;justify-content:space-between;font-size:11px;color:#8a6a52;margin-top:6px;font-weight:700}
+  .grape{position:absolute;right:-10px;top:-14px;font-size:78px;opacity:.18;transform:rotate(12deg)}
+  .goalrow{display:flex;align-items:center;gap:14px}
+  .ring{width:62px;height:62px;flex:none;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--bordeaux)}
+  .goaltxt b{color:var(--bordeaux);font-size:15px}.goaltxt p{font-size:12px;color:#7a5b48;margin-top:3px}
+  .sectitle{color:var(--cream);font-weight:800;font-size:14px;margin:6px 4px 10px;letter-spacing:.4px;text-transform:uppercase;opacity:.92}
+  .cats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cat{border-radius:20px;padding:15px 14px;color:#fff;cursor:pointer;position:relative;box-shadow:var(--shadow);overflow:hidden;border:none;text-align:left;transition:transform .12s}
+  .cat:active{transform:scale(.96)}
+  .cat .emoji{font-size:30px;display:block;margin-bottom:8px}
+  .cat h3{font-size:15px;font-weight:800;line-height:1.15}
+  .cat small{display:block;opacity:.92;font-size:11px;margin-top:4px;font-weight:600}
+  .cat .prog{height:6px;background:rgba(255,255,255,.3);border-radius:10px;margin-top:10px;overflow:hidden}
+  .cat .prog>i{display:block;height:100%;background:#fff;border-radius:10px;transition:width .5s}
+  .cat.c0{background:linear-gradient(135deg,#8e1d3d,#c0392b)}
+  .cat.c1{background:linear-gradient(135deg,#6d4196,#9b59b6)}
+  .cat.c2{background:linear-gradient(135deg,#1f8a70,#2ecc71)}
+  .cat.c3{background:linear-gradient(135deg,#2c6fbb,#3498db)}
+  .cat.c4{background:linear-gradient(135deg,#c98a16,#e67e22)}
+  .cat .lock{position:absolute;inset:0;background:rgba(30,5,15,.74);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;border-radius:20px}
+  .cat .lock .lk{font-size:26px}
+
+  /* ---------- lesson / flashcard ---------- */
+  .lesson-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .back{background:rgba(255,255,255,.12);border:1px solid rgba(231,181,74,.3);color:var(--cream);width:40px;height:40px;border-radius:14px;font-size:20px;cursor:pointer;flex:none}
+  .pbar{flex:1;height:12px;background:rgba(255,255,255,.18);border-radius:20px;overflow:hidden}
+  .pbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:20px;transition:width .4s}
+  .pcount{color:var(--cream);font-weight:800;font-size:13px;flex:none}
+  .flash{background:linear-gradient(135deg,#fff,#fff3df);border-radius:26px;padding:26px 20px;box-shadow:var(--shadow);text-align:center;border:1px solid rgba(201,150,47,.35);min-height:300px;display:flex;flex-direction:column;justify-content:center;position:relative}
+  .flash .tag{position:absolute;top:14px;left:16px;font-size:11px;font-weight:800;color:#fff;background:var(--wine);padding:4px 10px;border-radius:20px}
+  .flash .ru{font-size:28px;font-weight:800;color:var(--bordeaux);line-height:1.2;margin-bottom:8px}
+  .flash .tr{font-size:15px;color:#a07a3a;font-style:italic;font-weight:600;margin-bottom:16px}
+  .flash .fr{font-size:18px;color:#3a2a30;font-weight:700;border-top:1px dashed #e2cba0;padding-top:14px;margin-top:6px}
+  .flash .hint{font-size:13px;color:#9a7a60;background:#fff7ec;border-radius:14px;padding:10px 12px;margin-top:14px;line-height:1.4}
+  .speak{margin:16px auto 0;background:var(--bordeaux);color:var(--gold);border:none;border-radius:40px;padding:12px 22px;font-size:15px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:9px}
+  .speak:active{transform:scale(.95)}
+  .flashbtns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .btn{border:none;border-radius:18px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;color:#fff;transition:transform .12s}
+  .btn:active{transform:scale(.96)}
+  .btn.ghost{background:rgba(255,255,255,.12);border:1px solid rgba(231,181,74,.35);color:var(--cream)}
+  .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--bordeaux)}
+  .btn.green{background:linear-gradient(135deg,#3fae6b,#2e9c5b)}
+  .btn.big{width:100%}
+
+  /* ---------- quiz ---------- */
+  .qprompt{background:linear-gradient(135deg,#fff,#fff3df);border-radius:24px;padding:22px;text-align:center;box-shadow:var(--shadow);border:1px solid rgba(201,150,47,.35);margin-bottom:14px}
+  .qprompt small{font-size:12px;color:#a07a3a;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+  .qprompt .q{font-size:26px;font-weight:800;color:var(--bordeaux);margin-top:8px;line-height:1.2}
+  .qprompt .qsub{font-size:13px;color:#8a6a52;margin-top:6px;font-style:italic}
+  .opts{display:grid;gap:11px}
+  .opt{background:#fff;border:2px solid #ecd9b6;border-radius:16px;padding:15px 16px;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;transition:all .15s;box-shadow:0 4px 12px rgba(40,5,20,.08)}
+  .opt:active{transform:scale(.98)}
+  .opt.correct{background:#e7f8ee;border-color:var(--green);color:#1c7a45}
+  .opt.wrong{background:#fdeaee;border-color:var(--red);color:#b3243d}
+  .opt.dim{opacity:.5}
+
+  /* ---------- achievements ---------- */
+  .badges{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .badge{background:var(--card);border-radius:18px;padding:16px;text-align:center;box-shadow:var(--shadow);position:relative;transition:transform .12s}
+  .badge .bem{font-size:38px;filter:grayscale(1);opacity:.32;transition:.3s}
+  .badge.on .bem{filter:none;opacity:1}
+  .badge h4{font-size:13px;font-weight:800;color:var(--bordeaux);margin-top:8px}
+  .badge p{font-size:11px;color:#8a6a52;margin-top:4px;line-height:1.3}
+  .badge.on::after{content:"✓";position:absolute;top:10px;right:12px;color:var(--green);font-weight:900;font-size:16px}
+  .lvlcard{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .lvlcard .em{font-size:30px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:#fff3df;border-radius:14px;flex:none}
+  .lvlcard.locked{opacity:.5}.lvlcard.current{border:2px solid var(--gold)}
+  .lvlcard h4{font-size:14px;color:var(--bordeaux)}.lvlcard p{font-size:11px;color:#8a6a52;margin-top:2px}
+  .lvlcard .req{margin-left:auto;font-size:11px;font-weight:800;color:#a07a3a;flex:none}
+
+  /* ---------- GAME (platformer) ---------- */
+  #scr-game{padding:10px 12px 14px}
+  .game-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;color:var(--cream)}
+  .game-top .gt-title{font-size:14px;font-weight:800}
+  .gamewrap{position:relative;border-radius:12px;overflow:hidden;border:3px solid var(--gold);box-shadow:4px 4px 0 rgba(0,0,0,.4)}
+  #gameCanvas{display:block;background:#9bd2ff;image-rendering:pixelated}
+  .ghud{position:absolute;top:6px;left:8px;right:8px;display:flex;justify-content:space-between;color:#fff;font-size:13px;text-shadow:2px 2px 0 rgba(0,0,0,.45);pointer-events:none}
+  .wordbanner{position:absolute;top:42px;left:50%;transform:translateX(-50%) translateY(-8px);background:rgba(45,7,22,.94);
+    color:#fff;border:2px solid var(--gold);border-radius:12px;padding:8px 16px;opacity:0;transition:.18s;text-align:center;min-width:160px;pointer-events:none}
+  .wordbanner.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .wordbanner b{color:var(--gold);font-size:18px;display:block}
+  .wordbanner i{font-size:11px;opacity:.8}.wordbanner span{font-size:14px;display:block;margin-top:2px}
+  .gpad{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:10px}
+  .dpad{display:flex;gap:12px}
+  .gbtn{width:62px;height:62px;border-radius:16px;background:rgba(255,255,255,.10);border:2px solid var(--gold);color:var(--gold);
+    font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;cursor:pointer}
+  .gbtn:active{background:rgba(231,181,74,.3)}
+  .gbtn.jump{width:90px;height:62px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--bordeaux);font-size:16px;flex-direction:column;gap:1px}
+  .gbtn.jump small{font-size:10px}
+  .ghelp{color:rgba(255,247,236,.6);font-size:11px;text-align:center;margin-top:10px;line-height:1.5}
+
+  /* ---------- bottom nav ---------- */
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:480px;margin:0 auto;display:flex;
+    background:linear-gradient(180deg,rgba(45,7,22,.92),rgba(35,5,18,.99));backdrop-filter:blur(10px);
+    border-top:1px solid rgba(231,181,74,.25);padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+  .nav button{flex:1;background:none;border:none;color:rgba(255,247,236,.55);font-size:10px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px}
+  .nav button .ni{font-size:20px}
+  .nav button.active{color:var(--gold)}
+
+  /* ---------- toast / modal / confetti ---------- */
+  .toast{position:fixed;left:50%;top:18%;z-index:60;background:var(--bordeaux);color:var(--gold);font-weight:800;padding:12px 20px;border-radius:30px;box-shadow:var(--shadow);opacity:0;transition:.35s;pointer-events:none;font-size:15px;max-width:90%;text-align:center;transform:translateX(-50%) translateY(-20px)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .modal{position:fixed;inset:0;z-index:70;background:rgba(20,3,12,.75);display:none;align-items:center;justify-content:center;padding:24px;animation:fade .3s}
+  .modal.show{display:flex}
+  .modal .box{background:linear-gradient(160deg,#fff,#fff3df);border-radius:26px;padding:26px 22px;text-align:center;max-width:340px;width:100%;box-shadow:var(--shadow);border:1px solid rgba(201,150,47,.4);animation:pop .4s cubic-bezier(.2,1.2,.3,1)}
+  @keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal .big{font-size:64px;margin-bottom:8px;animation:tada .8s}
+  @keyframes tada{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(1.1) rotate(6deg)}100%{transform:scale(1)}}
+  .modal h2{color:var(--bordeaux);font-size:22px}
+  .modal p{color:#6a4a35;font-size:14px;margin-top:8px;line-height:1.5}
+  .modal .stats{display:flex;gap:10px;justify-content:center;margin:16px 0 6px}
+  .modal .stats div{background:#fff;border-radius:14px;padding:10px 14px;flex:1;box-shadow:0 4px 12px rgba(40,5,20,.08)}
+  .modal .stats b{display:block;color:var(--wine);font-size:20px}
+  .modal .stats small{font-size:10px;color:#8a6a52;font-weight:700}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:65;overflow:hidden}
+  .confetti i{position:absolute;width:9px;height:14px;top:-20px;border-radius:2px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.9}}
+  .footnote{color:rgba(255,247,236,.55);font-size:11px;text-align:center;margin-top:8px;line-height:1.5}
+  .reset{background:none;border:none;color:rgba(255,247,236,.45);font-size:11px;text-decoration:underline;cursor:pointer;display:block;margin:10px auto 0}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar" id="topbar">
+    <div class="logo">🍷 Jean-Claude<small>en Russie 🐻</small></div>
+    <div class="spacer"></div>
+    <div class="stat fire">🔥 <span id="tStreak">0</span></div>
+    <div class="stat xp">⭐ <span id="tXp">0</span></div>
+  </div>
+
+  <!-- ============ SPLASH ============ -->
+  <div class="screen active" id="scr-splash" onclick="go('menu')">
+    <canvas id="splashCanvas"></canvas>
+    <div class="splash-overlay">
+      <div class="splash-title pix">Jean-Claude<span>en Russie</span></div>
+      <div class="splash-sub">🍷 Apprends le russe · Учим русский 🐻</div>
+    </div>
+    <div class="press-start pix">▶ Appuie pour jouer<small>НАЖМИ, ЧТОБЫ ИГРАТЬ</small></div>
+  </div>
+
+  <!-- ============ MENU ============ -->
+  <div class="screen" id="scr-menu">
+    <div class="menu-hero">
+      <canvas id="menuCanvas" width="72" height="84"></canvas>
+      <div class="mh">
+        <b id="menuLvl">Niveau 1</b>
+        <p id="menuLvlRu">Турист с чемоданом вина</p>
+        <div class="mini"><span>⭐ <i id="menuXp">0</i></span><span>🔥 <i id="menuStreak">0</i></span></div>
+      </div>
+    </div>
+    <button class="mbtn play" onclick="startGame()"><span class="mi">🎮</span><div>Jean-Claude court !<small>Plateforme · ramasse les mots 🍷</small></div></button>
+    <button class="mbtn les" onclick="go('home')"><span class="mi">📚</span><div>Leçons<small>Business · dégustation · argot</small></div></button>
+    <button class="mbtn qz" onclick="startMixedQuiz()"><span class="mi">🎯</span><div>Entraînement<small>Quiz rapide RU ↔ FR</small></div></button>
+    <button class="mbtn ph" onclick="go('phrase')"><span class="mi">📖</span><div>Antisèche<small>Toutes les phrases · Шпаргалка</small></div></button>
+    <button class="mbtn tr" onclick="go('ach')"><span class="mi">🏆</span><div>Trophées<small>Badges & niveaux</small></div></button>
+    <div class="footnote">Sauvegardé sur ton téléphone 📱 · hors-ligne ✈️</div>
+    <button class="reset" onclick="hardReset()">Tout réinitialiser</button>
+  </div>
+
+  <!-- ============ GAME ============ -->
+  <div class="screen" id="scr-game">
+    <div class="game-top">
+      <button class="back" onclick="go('menu')">←</button>
+      <div class="gt-title pix">🍷 Jean-Claude court !</div>
+    </div>
+    <div class="gamewrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="ghud"><span id="gLives">❤️❤️❤️</span><span id="gWords">🍷 0/0</span></div>
+      <div class="wordbanner" id="wordBanner"><b id="wbRu"></b><i id="wbTr"></i><span id="wbFr"></span></div>
+    </div>
+    <div class="gpad">
+      <div class="dpad">
+        <div class="gbtn" id="btnLeft">◀</div>
+        <div class="gbtn" id="btnRight">▶</div>
+      </div>
+      <div class="gbtn jump" id="btnJump">⤴<small>SAUT</small></div>
+    </div>
+    <div class="ghelp">Ramasse les 🍷 (= mots russes) · saute sur les 🐻 · atteins le Kremlin 🏰<br>Sur ordi : flèches ← → et Espace</div>
+  </div>
+
+  <!-- ============ HOME / Уроки ============ -->
+  <div class="screen" id="scr-home">
+    <div class="hero">
+      <span class="grape">🍇</span>
+      <h1 id="heroLevelName">Touriste avec une valise de vin</h1>
+      <p>Salut <b>Jean-Claude</b> ! Прокачай русский 🇷🇺 — для продаж вина, дегустаций и душевных бесед. <i>Santé = За здоровье!</i></p>
+      <div class="level-pill">🏅 Niveau <span id="heroLevelNum">1</span> · <span id="heroLevelRu"></span></div>
+      <div class="lvlbar"><i id="heroBar" style="width:0%"></i></div>
+      <div class="lvlmeta"><span id="heroXpNow">0 XP</span><span id="heroXpNext">→ 100 XP</span></div>
+    </div>
+    <div class="panel">
+      <div class="goalrow">
+        <div class="ring">
+          <svg width="62" height="62">
+            <circle cx="31" cy="31" r="26" fill="none" stroke="#eaddc7" stroke-width="8"/>
+            <circle id="goalRing" cx="31" cy="31" r="26" fill="none" stroke="#9b1b3f" stroke-width="8" stroke-linecap="round" stroke-dasharray="163" stroke-dashoffset="163"/>
+          </svg>
+          <div class="num"><span id="goalNum">0</span>/<span id="goalTgt">20</span></div>
+        </div>
+        <div class="goaltxt"><b>Objectif du jour 🎯</b><p id="goalMsg">Apprends 20 mots aujourd'hui !</p></div>
+      </div>
+    </div>
+    <div class="sectitle">📚 Thèmes</div>
+    <div class="cats" id="catList"></div>
+  </div>
+
+  <!-- ============ LESSON ============ -->
+  <div class="screen" id="scr-lesson">
+    <div class="lesson-top">
+      <button class="back" onclick="go('home')">←</button>
+      <div class="pbar"><i id="lessonBar" style="width:0%"></i></div>
+      <div class="pcount"><span id="lessonNow">1</span>/<span id="lessonTot">1</span></div>
+    </div>
+    <div class="flash" id="flashCard"></div>
+    <div class="flashbtns" id="flashBtns"></div>
+  </div>
+
+  <!-- ============ QUIZ ============ -->
+  <div class="screen" id="scr-quiz">
+    <div class="lesson-top">
+      <button class="back" onclick="go('menu')">←</button>
+      <div class="pbar"><i id="quizBar" style="width:0%"></i></div>
+      <div class="pcount">❤️ <span id="quizLives">3</span></div>
+    </div>
+    <div class="qprompt" id="quizPrompt"></div>
+    <div class="opts" id="quizOpts"></div>
+  </div>
+
+  <!-- ============ PHRASEBOOK ============ -->
+  <div class="screen" id="scr-phrase">
+    <div class="lesson-top">
+      <button class="back" onclick="go('menu')">←</button>
+      <div class="logo" style="color:var(--cream);font-size:17px">📖 Antisèche / Шпаргалка</div>
+    </div>
+    <div id="phraseList"></div>
+  </div>
+
+  <!-- ============ ACHIEVEMENTS ============ -->
+  <div class="screen" id="scr-ach">
+    <div class="hero" style="margin-bottom:14px">
+      <span class="grape">🏆</span>
+      <h1>Tes trophées</h1>
+      <p>Collectionne les badges et grimpe les niveaux. <b id="achCount">0</b> badges débloqués !</p>
+    </div>
+    <div class="sectitle">🏅 Badges</div>
+    <div class="badges" id="badgeList"></div>
+    <div class="sectitle" style="margin-top:18px">🪜 Niveaux</div>
+    <div id="levelList"></div>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="nav">
+    <button id="nav-menu" onclick="go('menu')"><span class="ni">🏠</span>Menu</button>
+    <button id="nav-game" onclick="startGame()"><span class="ni">🎮</span>Jeu</button>
+    <button id="nav-home" onclick="go('home')"><span class="ni">📚</span>Leçons</button>
+    <button id="nav-quiz" onclick="startMixedQuiz()"><span class="ni">🎯</span>Quiz</button>
+    <button id="nav-ach" onclick="go('ach')"><span class="ni">🏆</span>Trophées</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti"></div>
+<div class="modal" id="modal">
+  <div class="box">
+    <div class="big" id="mBig">🎉</div>
+    <h2 id="mTitle"></h2>
+    <p id="mText"></p>
+    <div class="stats" id="mStats"></div>
+    <button class="btn gold big" style="margin-top:14px" onclick="closeModal()" id="mBtn">Продолжаем! 🍷</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   Jean-Claude en Russie — данные курса
+   ============================================================ */
+const CATS = [
+  {id:"biz",icon:"🤝",color:"c0",fr:"Business & ventes",ru:"Бизнес и продажи",sub:"Vendre du vin, clients",cards:[
+    {ru:"Здравствуйте, рад знакомству!",tr:"Zdravstvouïtié, rad znakómstvou",fr:"Bonjour, ravi de vous rencontrer !",hint:"La formule pro #1 😊"},
+    {ru:"Я представляю французскую винодельню",tr:"Ya predstavlyáyou frantsouzskouyou vinodélnyou",fr:"Je représente un domaine viticole français",hint:"Ta carte de visite parlée 🇫🇷"},
+    {ru:"Это вино из Бордо",tr:"Eta vinó iz Bordó",fr:"Ce vin vient de Bordeaux",hint:"Бордо = Bordeaux. Facile !"},
+    {ru:"Какой у вас бюджет?",tr:"Kakóy ou vas byoudjét?",fr:"Quel est votre budget ?",hint:"La question qui fait avancer le deal 💰"},
+    {ru:"Отличное соотношение цены и качества",tr:"Atlíchnaïe saatnachénié tsený i káchestva",fr:"Excellent rapport qualité-prix",hint:"L'argument qui tue en Russie"},
+    {ru:"Давайте обсудим условия поставки",tr:"Daváïtié absoudím ouslóviya pastávki",fr:"Discutons des conditions de livraison",hint:"On passe aux choses sérieuses 📦"},
+    {ru:"При большом заказе будет скидка",tr:"Pri balchóm zakázié bóudet skídka",fr:"Pour une grosse commande, il y a une remise",hint:"Скидка = remise, mot magique 🪄"},
+    {ru:"Когда подпишем контракт?",tr:"Kagdá padpíchem kantrákt?",fr:"Quand signe-t-on le contrat ?",hint:"Le closing 🤝"},
+    {ru:"Давайте обмыть сделку!",tr:"Daváïtié abmýt sdélkou!",fr:"Arrosons l'affaire !",hint:"On 'arrose' chaque contrat 🍾"},
+    {ru:"Это вино прекрасно идёт к мясу",tr:"Eta vinó prekrásna idyót k myásou",fr:"Ce vin se marie avec la viande",hint:"Les Russes adorent la viande 🥩"},
+    {ru:"Можно вашу визитку?",tr:"Mójna váchou vizítkou?",fr:"Votre carte de visite ?",hint:"Pour relancer le client"},
+    {ru:"Я перезвоню вам завтра",tr:"Ya perezvanyóu vam záftra",fr:"Je vous rappelle demain",hint:"Завтра = demain (parfois théorique 😄)"}
+  ]},
+  {id:"taste",icon:"🍷",color:"c4",fr:"Dégustation",ru:"Дегустация",sub:"Le vocabulaire du vin",cards:[
+    {ru:"Это сухое красное вино",tr:"Eta soukhóïe krásnaïe vinó",fr:"C'est un vin rouge sec",hint:"сухое = sec, сладкое = doux"},
+    {ru:"У вина фруктовый аромат",tr:"Ou viná frouktóvyï aramát",fr:"Le vin a un arôme fruité",hint:"Fais le pro 👃"},
+    {ru:"Терпкое, но сбалансированное",tr:"Tyérpkaïe, no sbalansíravannaïe",fr:"Tannique mais équilibré",hint:"Le mot qui impressionne"},
+    {ru:"Долгое послевкусие",tr:"Dólgaïe paslevkóusié",fr:"Une longue finale en bouche",hint:"послевкусие = finale"},
+    {ru:"Подаётся охлаждённым",tr:"Padayótsa akhlajdyónnym",fr:"Se sert frais",hint:"Pour blanc et rosé 🥂"},
+    {ru:"Это вино урожая 2018 года",tr:"Eta vinó ourojáya... góda",fr:"C'est un millésime 2018",hint:"урожай = récolte / millésime"},
+    {ru:"Попробуйте этот купаж",tr:"Papróbouïtié état koupáj",fr:"Goûtez cet assemblage",hint:"купаж = assemblage 🍇"},
+    {ru:"За ваше здоровье!",tr:"Za váché zdaróvié!",fr:"À votre santé !",hint:"Le toast classique 🥂"},
+    {ru:"Вино надо дать подышать",tr:"Vinó náda dat padychát",fr:"Il faut laisser le vin respirer",hint:"Le geste de l'expert"},
+    {ru:"Богатый насыщенный вкус",tr:"Bagátyï nasýchennyï vkous",fr:"Un goût riche et intense",hint:"Pour les grands crus"}
+  ]},
+  {id:"slang",icon:"😎",color:"c1",fr:"Argot & humour",ru:"Сленг и юмор",sub:"Parler comme un pote",cards:[
+    {ru:"Всё путём!",tr:"Vsyó poutyóm!",fr:"Tout roule ! / Nickel !",hint:"Réponse cool à 'ça va ?' 😎"},
+    {ru:"Ну ты даёшь!",tr:"Nou ty dayóch!",fr:"Eh ben dis donc !",hint:"Surprise admirative entre potes"},
+    {ru:"Давай на брудершафт!",tr:"Daváï na broudercháft!",fr:"Buvons à la fraternité !",hint:"Boire bras croisés puis se tutoyer 🤝🍷"},
+    {ru:"Я больше не пью... ну, разве что бокальчик",tr:"Ya bólche nié pyou... nou, bakálchik",fr:"Je ne bois plus... bon, juste un verre",hint:"Le classique russe 😂"},
+    {ru:"Понеслась!",tr:"Panislás!",fr:"C'est parti !",hint:"Quand la soirée démarre 🎉"},
+    {ru:"Ты мой друг до гроба",tr:"Ty moy droug da gróba",fr:"Tu es mon ami pour la vie",hint:"Amitié russe après le 3e verre ❤️"},
+    {ru:"Без бутылки не разберёшься",tr:"Biez boutýlki nié razberyóchsa",fr:"Sans une bouteille, on n'y comprend rien",hint:"Proverbe (semi)sérieux 🍾"},
+    {ru:"Закуска градус крадёт",tr:"Zakóuska grádous kradyót",fr:"La nourriture 'vole' les degrés",hint:"Sagesse anti-gueule de bois 🥒"},
+    {ru:"Ну за это грех не выпить!",tr:"Nou za eta grekh nié výpit!",fr:"Pour ça, péché de ne pas boire !",hint:"L'excuse universelle 😇"},
+    {ru:"Француз, а пьёт как русский!",tr:"Frantsóuz, a pyót kak róusskiï!",fr:"Un Français qui boit comme un Russe !",hint:"Le plus grand compliment 🐻🇫🇷"},
+    {ru:"Всё, я спать. Завтра дегустация",tr:"Vsyó, ya spat. Záftra degoustátsiya",fr:"Bon, je dors. Demain dégustation",hint:"L'art de s'échapper poliment 😴"}
+  ]},
+  {id:"survive",icon:"🧭",color:"c2",fr:"Survie au quotidien",ru:"Выживание",sub:"Se débrouiller",cards:[
+    {ru:"Сколько это стоит?",tr:"Skólka eta stóit?",fr:"Combien ça coûte ?",hint:"Indispensable 💸"},
+    {ru:"Можно счёт, пожалуйста?",tr:"Mójna schyot, pajálousta?",fr:"L'addition, s'il vous plaît ?",hint:"счёт = addition"},
+    {ru:"Где здесь метро?",tr:"Gdié zdyés metró?",fr:"Où est le métro ?",hint:"Le métro de Moscou est magnifique 🚇"},
+    {ru:"Я не очень хорошо говорю по-русски",tr:"Ya nié óchen kharachó gavaryóu pa-róusski",fr:"Je ne parle pas très bien russe",hint:"Honnête, ça attendrit 😅"},
+    {ru:"Повторите помедленнее, пожалуйста",tr:"Paftarítié pamédlenneïe, pajálousta",fr:"Répétez plus lentement, svp",hint:"Phrase de survie #1"},
+    {ru:"Спасибо большое!",tr:"Spasíba balchóïe!",fr:"Merci beaucoup !",hint:"On n'en dit jamais trop 🙏"},
+    {ru:"Извините, я опаздываю",tr:"Izvinítié, ya apázdyvayou",fr:"Désolé, je suis en retard",hint:"Trafic de Moscou 🚗"},
+    {ru:"Мне, пожалуйста, кофе",tr:"Mnié, pajálousta, kófié",fr:"Un café, s'il vous plaît",hint:"Pour survivre au matin ☕"},
+    {ru:"Где можно купить хорошее вино?",tr:"Gdié mójna koupít kharócheïe vinó?",fr:"Où acheter du bon vin ?",hint:"Question piège : il en vend ! 😉"},
+    {ru:"Я из Франции",tr:"Ya iz Frántsii",fr:"Je viens de France",hint:"Ouvre toutes les portes 🇫🇷❤️🇷🇺"}
+  ]}
+];
+
+/* короткие слова для платформера (бутылки) */
+const WORDS=[
+  {ru:"вино",tr:"vinó",fr:"vin"},{ru:"друг",tr:"droug",fr:"ami"},
+  {ru:"деньги",tr:"déngui",fr:"argent"},{ru:"клиент",tr:"kliént",fr:"client"},
+  {ru:"скидка",tr:"skídka",fr:"remise"},{ru:"сделка",tr:"sdélka",fr:"affaire"},
+  {ru:"здоровье",tr:"zdoróvié",fr:"santé"},{ru:"спасибо",tr:"spasíba",fr:"merci"},
+  {ru:"бутылка",tr:"boutýlka",fr:"bouteille"},{ru:"бокал",tr:"bakál",fr:"verre"},
+  {ru:"хорошо",tr:"kharachó",fr:"bien"},{ru:"дорого",tr:"dóraga",fr:"cher"},
+  {ru:"контракт",tr:"kantrákt",fr:"contrat"},{ru:"вкусно",tr:"vkóusna",fr:"délicieux"},
+  {ru:"да",tr:"da",fr:"oui"},{ru:"нет",tr:"net",fr:"non"}
+];
+
+const LEVELS = [
+  {n:1,xp:0,em:"🧳",fr:"Touriste avec une valise de vin",ru:"Турист с чемоданом вина"},
+  {n:2,xp:120,em:"🍷",fr:"Débutant sommelier",ru:"Начинающий сомелье"},
+  {n:3,xp:300,em:"🤝",fr:"Pote d'Ivan",ru:"Друг Ивана"},
+  {n:4,xp:550,em:"🇫🇷",fr:"Ambassadeur du vin français",ru:"Винный посол Франции"},
+  {n:5,xp:850,em:"🎉",fr:"Âme du festin russe",ru:"Душа русского застолья"},
+  {n:6,xp:1250,em:"💼",fr:"Magnat du vin de Sibérie",ru:"Винный магнат Сибири"},
+  {n:7,xp:1800,em:"🐻",fr:"Légende : l'Ours français",ru:"Легенда: Французский медведь"}
+];
+
+const BADGES = [
+  {id:"first",em:"🍷",fr:"Première gorgée",p:"Termine ta 1ère leçon"},
+  {id:"hero",em:"🎮",fr:"Héros de plateforme",p:"Finis un niveau du jeu"},
+  {id:"biz",em:"🤝",fr:"Affaire conclue",p:"Finis le thème Business"},
+  {id:"taste",em:"👃",fr:"Nez d'expert",p:"Finis la Dégustation"},
+  {id:"slang",em:"😎",fr:"Un vrai des nôtres",p:"Finis l'Argot"},
+  {id:"survive",em:"🧭",fr:"Survivant",p:"Finis la Survie"},
+  {id:"streak3",em:"🔥",fr:"En feu !",p:"Série de 3 jours"},
+  {id:"perfect",em:"💯",fr:"Sans-faute",p:"100% à un quiz"},
+  {id:"xp500",em:"🐻",fr:"Âme russe",p:"Atteins 500 XP"},
+  {id:"magnat",em:"🏆",fr:"Le Magnat",p:"Niveau max"}
+];
+
+/* ============================================================
+   Состояние (localStorage с защитой)
+   ============================================================ */
+const KEY="jcRusV1";
+let MEM=null;
+function lsGet(){try{return localStorage.getItem(KEY);}catch(e){return MEM;}}
+function lsSet(v){try{localStorage.setItem(KEY,v);}catch(e){MEM=v;}}
+function lsDel(){try{localStorage.removeItem(KEY);}catch(e){}MEM=null;}
+let S=load();
+function load(){
+  try{const s=JSON.parse(lsGet());if(s&&s.xp!=null)return s;}catch(e){}
+  return {xp:0,streak:0,lastDay:null,goalDate:null,goalCount:0,done:{},badges:{},learned:{}};
+}
+function save(){try{lsSet(JSON.stringify(S));}catch(e){}}
+
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const GOAL=20;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function checkDay(){const t=todayStr();if(S.goalDate!==t){S.goalDate=t;S.goalCount=0;}
+  if(S.lastDay){const diff=(new Date(t)-new Date(S.lastDay))/86400000;if(diff>1)S.streak=0;}save();}
+function registerActivity(){const t=todayStr();if(S.lastDay!==t){
+  const diff=S.lastDay?(new Date(t)-new Date(S.lastDay))/86400000:99;
+  S.streak=(diff===1)?S.streak+1:1;S.lastDay=t;if(S.streak>=3)unlock("streak3");}save();}
+
+function curLevel(){let lv=LEVELS[0];for(const l of LEVELS)if(S.xp>=l.xp)lv=l;return lv;}
+function nextLevel(){for(const l of LEVELS)if(l.xp>curLevel().xp)return l;return null;}
+function addXp(n){const before=curLevel().n;S.xp+=n;if(S.xp>=500)unlock("xp500");
+  const after=curLevel();save();
+  if(after.n>before){setTimeout(()=>levelUpModal(after),650);if(after.n===LEVELS.length)unlock("magnat");}}
+function unlock(id){if(S.badges[id])return;S.badges[id]=true;save();
+  const b=BADGES.find(x=>x.id===id);if(b)setTimeout(()=>badgeModal(b),900);}
+
+/* ============================================================
+   Навигация
+   ============================================================ */
+let cur="splash";
+function go(name){
+  if(name!=="game")stopGame();
+  cur=name;
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("scr-"+name).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+  const nav=document.getElementById("nav-"+name);if(nav)nav.classList.add("active");
+  document.getElementById("topbar").style.display=(name==="splash")?"none":"flex";
+  document.querySelector(".nav").style.display=(name==="splash"||name==="game")?"none":"flex";
+  window.scrollTo(0,0);
+  if(name==="splash")drawSplash();
+  if(name==="menu")renderMenu();
+  if(name==="home")renderHome();
+  if(name==="ach")renderAch();
+  if(name==="phrase")renderPhrase();
+}
+
+/* ============================================================
+   Пиксельный Жан-Клод (берет + багет + тельняшка)
+   ============================================================ */
+const JC_ROWS=[
+  "....KKKKKK....",
+  "..KKKKKKKKKk..",
+  "..kkkkkkkkkk..",
+  "....SSSSSS....",
+  "...SSSSSSSS...",
+  "...SEESSEES...",
+  "...SSSSSSSS...",
+  "...SEEEEEES...",
+  "....SSSSSS....",
+  "...WBWBWBWB.gG",
+  "..WBWBWBWBW.gG",
+  "..BWBWBWBWB.G.",
+  "...PPPPPPPP...",
+  "...PP..PPP....",
+  "..HHH..HHH...."
+];
+const JC_COL={K:"#9b1b3f",k:"#5b0e2d",S:"#f4caa6",E:"#2a1a12",W:"#ffffff",B:"#2f6fed",P:"#26324f",G:"#e6b85c",g:"#b07d2c",H:"#2a1a12"};
+function drawJC(c,x,y,px,flip){
+  for(let r=0;r<JC_ROWS.length;r++){const row=JC_ROWS[r];
+    for(let i=0;i<row.length;i++){const ch=row[i];if(ch===".")continue;const col=JC_COL[ch];if(!col)continue;
+      const cx=flip?(13-i):i;c.fillStyle=col;
+      c.fillRect(Math.round(x+cx*px),Math.round(y+r*px),px+0.6,px+0.6);}}
+}
+/* луковичный купол */
+function drawDome(c,cx,baseY,r,col){
+  c.fillStyle=col;c.beginPath();c.moveTo(cx-r,baseY);
+  c.quadraticCurveTo(cx-r,baseY-r*1.5,cx,baseY-r*2);
+  c.quadraticCurveTo(cx+r,baseY-r*1.5,cx+r,baseY);c.closePath();c.fill();
+  c.fillRect(cx-r*0.65,baseY,r*1.3,r*0.7);
+  c.fillStyle="#e7b54a";c.fillRect(cx-1,baseY-r*2-5,2,5);
+}
+/* кремлёвская башня (финиш) */
+function drawTower(c,x,baseY){
+  c.fillStyle="#7a163d";c.fillRect(x,baseY-130,48,130);
+  c.fillStyle="#5b0e2d";c.fillRect(x,baseY-130,48,10);
+  c.fillStyle="#e7b54a";for(let i=0;i<3;i++)c.fillRect(x+10+i*12,baseY-95,6,10);
+  c.fillStyle="#2e7d4f";c.beginPath();c.moveTo(x-6,baseY-130);c.lineTo(x+24,baseY-178);c.lineTo(x+54,baseY-130);c.closePath();c.fill();
+  c.fillStyle="#e7b54a";c.save();c.translate(x+24,baseY-188);c.rotate(Math.PI/4);c.fillRect(-6,-6,12,12);c.restore();
+  c.font="bold 11px monospace";c.fillStyle="#fff";c.textAlign="center";c.fillText("ФИНИШ",x+24,baseY+16);c.textAlign="left";
+}
+
+/* ============================================================
+   SPLASH
+   ============================================================ */
+function drawSplash(){
+  const cv=document.getElementById("splashCanvas");
+  const wrap=document.getElementById("scr-splash");
+  const W=Math.min(480,(wrap.clientWidth||window.innerWidth||360));
+  const H=Math.min(560,Math.max(420,window.innerHeight||520));
+  cv.width=W;cv.height=H;cv.style.height=H+"px";
+  const c=cv.getContext("2d");
+  // небо-закат
+  let g=c.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#2a0a2e");g.addColorStop(.45,"#7a1f4f");g.addColorStop(.8,"#e0814a");g.addColorStop(1,"#f2b46a");
+  c.fillStyle=g;c.fillRect(0,0,W,H);
+  // звёзды
+  c.fillStyle="rgba(255,255,255,.8)";
+  for(let i=0;i<40;i++)c.fillRect((i*73)%W,(i*51)%(H*0.4),2,2);
+  // луна
+  c.fillStyle="#fff6d8";c.beginPath();c.arc(W-60,70,26,0,7);c.fill();
+  const groundY=H-70;
+  // силуэт Кремля
+  c.fillStyle="#3d0f24";
+  c.fillRect(W*0.32,groundY-90,W*0.5,90);
+  for(let i=0;i<10;i++)c.fillRect(W*0.32+i*(W*0.5/10),groundY-100,W*0.5/20,12);
+  drawDome(c,W*0.42,groundY-90,16,"#3877c2");
+  drawDome(c,W*0.55,groundY-90,20,"#2e8d54");
+  drawDome(c,W*0.68,groundY-90,16,"#c0392b");
+  // центральная башня со звездой
+  c.fillStyle="#3d0f24";c.fillRect(W*0.51,groundY-150,34,60);
+  c.beginPath();c.moveTo(W*0.51-4,groundY-150);c.lineTo(W*0.51+17,groundY-185);c.lineTo(W*0.51+38,groundY-150);c.closePath();c.fill();
+  c.fillStyle="#e7b54a";c.save();c.translate(W*0.51+17,groundY-193);c.rotate(Math.PI/4);c.fillRect(-5,-5,10,10);c.restore();
+  // земля (брусчатка)
+  c.fillStyle="#5a4636";c.fillRect(0,groundY,W,H-groundY);
+  c.fillStyle="#6e5743";c.fillRect(0,groundY,W,6);
+  // Жан-Клод крупным планом слева
+  const px=Math.max(6,Math.round(W/56));
+  drawJC(c,18,groundY-15*px,px,false);
+  // бочка вина рядом
+  c.fillStyle="#7a4a24";c.fillRect(18+15*px+6,groundY-30,34,30);
+  c.fillStyle="#9b6a34";c.fillRect(18+15*px+6,groundY-26,34,4);c.fillRect(18+15*px+6,groundY-14,34,4);
+  c.fillStyle="#e7b54a";c.font="16px serif";c.fillText("🍷",18+15*px+12,groundY-36);
+}
+
+/* ============================================================
+   MENU
+   ============================================================ */
+function renderMenu(){
+  document.getElementById("tStreak").textContent=S.streak;
+  document.getElementById("tXp").textContent=S.xp;
+  const lv=curLevel();
+  document.getElementById("menuLvl").textContent="Niveau "+lv.n+" · "+lv.fr;
+  document.getElementById("menuLvlRu").textContent=lv.ru;
+  document.getElementById("menuXp").textContent=S.xp;
+  document.getElementById("menuStreak").textContent=S.streak;
+  const cv=document.getElementById("menuCanvas");const c=cv.getContext("2d");
+  c.clearRect(0,0,cv.width,cv.height);
+  drawJC(c,(cv.width-14*4)/2,cv.height-15*4-2,4,false);
+}
+
+/* ============================================================
+   ПЛАТФОРМЕР (Mario-like)
+   ============================================================ */
+const G={running:false,raf:0,ctx:null,cv:null,W:0,H:340};
+let gp=null;
+const GR=0.62,MOVE=3.0,JUMP=11.8,MAXFALL=13;
+
+function startGame(){
+  go("game");
+  initLevel();
+  G.running=true;
+  lastT=0;
+  G.raf=requestAnimationFrame(loop);
+}
+function stopGame(){G.running=false;if(G.raf){cancelAnimationFrame(G.raf);G.raf=0;}}
+
+function initLevel(){
+  const cv=document.getElementById("gameCanvas");
+  const wrap=document.getElementById("scr-game");
+  const W=Math.min(456,(wrap.clientWidth||360)-30);
+  cv.width=W;cv.height=G.H;cv.style.width=W+"px";cv.style.height=G.H+"px";
+  G.cv=cv;G.ctx=cv.getContext("2d");G.W=W;
+  const gy=G.H-38;
+  const platforms=[
+    {x:0,y:gy,w:560,h:60},{x:640,y:gy,w:520,h:60},{x:1240,y:gy,w:470,h:60},{x:1790,y:gy,w:1220,h:60},
+    {x:260,y:gy-86,w:110,h:16},{x:700,y:gy-92,w:110,h:16},{x:980,y:gy-90,w:96,h:16},
+    {x:1360,y:gy-92,w:110,h:16},{x:1560,y:gy-88,w:100,h:16},{x:2060,y:gy-92,w:120,h:16},
+    {x:2340,y:gy-90,w:110,h:16},{x:2600,y:gy-86,w:120,h:16}
+  ];
+  const spots=[
+    {x:160,y:gy-28},{x:300,y:gy-86-26},{x:470,y:gy-28},{x:735,y:gy-92-26},{x:900,y:gy-28},
+    {x:1010,y:gy-90-26},{x:1320,y:gy-28},{x:1400,y:gy-92-26},{x:1600,y:gy-88-26},
+    {x:1900,y:gy-28},{x:2110,y:gy-92-26},{x:2300,y:gy-28},{x:2390,y:gy-90-26},{x:2650,y:gy-86-26},{x:2780,y:gy-28}
+  ];
+  const sw=shuffle(WORDS);
+  const bottles=spots.map((s,i)=>({x:s.x,y:s.y,w:20,h:26,taken:false,word:sw[i%sw.length]}));
+  const enemies=[
+    {x:420,y:gy-26,w:26,h:26,dir:-1,min:380,max:540,alive:true},
+    {x:900,y:gy-26,w:26,h:26,dir:1,min:660,max:1140,alive:true},
+    {x:1400,y:gy-26,w:26,h:26,dir:1,min:1260,max:1690,alive:true},
+    {x:2200,y:gy-26,w:26,h:26,dir:-1,min:1820,max:2520,alive:true}
+  ];
+  gp={
+    player:{x:30,y:gy-40,w:22,h:30,vx:0,vy:0,onGround:false,face:1},
+    cam:0,lives:3,collected:[],won:false,
+    platforms,bottles,enemies,flag:{x:2880,y:gy,w:40,h:90},levelEnd:2960,
+    keys:{left:false,right:false},wantJump:false,t:0
+  };
+  updateHud();
+}
+
+const rectsOverlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+let lastT=0;
+function loop(ts){
+  if(!G.running)return;
+  update();render();
+  G.raf=requestAnimationFrame(loop);
+}
+function update(){
+  const p=gp.player;
+  if(gp.keys.left){p.vx=-MOVE;p.face=-1;}
+  else if(gp.keys.right){p.vx=MOVE;p.face=1;}
+  else p.vx=0;
+  if(gp.wantJump&&p.onGround){p.vy=-JUMP;p.onGround=false;}
+  gp.wantJump=false;
+  p.vy+=GR;if(p.vy>MAXFALL)p.vy=MAXFALL;
+  // X
+  p.x+=p.vx;
+  for(const pl of gp.platforms){if(rectsOverlap(p,pl)){if(p.vx>0)p.x=pl.x-p.w;else if(p.vx<0)p.x=pl.x+pl.w;}}
+  if(p.x<0)p.x=0;
+  // Y
+  p.y+=p.vy;p.onGround=false;
+  for(const pl of gp.platforms){if(rectsOverlap(p,pl)){
+    if(p.vy>0){p.y=pl.y-p.h;p.vy=0;p.onGround=true;}
+    else if(p.vy<0){p.y=pl.y+pl.h;p.vy=0;}}}
+  // падение в пропасть
+  if(p.y>G.H+80){loseLife();return;}
+  // враги
+  for(const e of gp.enemies){if(!e.alive)continue;
+    e.x+=e.dir*0.9;if(e.x<e.min||e.x>e.max)e.dir*=-1;
+    if(rectsOverlap(p,e)){
+      if(p.vy>0&&(p.y+p.h-e.y)<18){e.alive=false;p.vy=-9;addXp(5);toast("🐻 +5 XP");}
+      else{loseLife();return;}
+    }}
+  // бутылки
+  for(const b of gp.bottles){if(!b.taken&&rectsOverlap(p,b))collect(b);}
+  // финиш
+  if(p.x>gp.flag.x){winLevel();return;}
+  gp.cam=clamp(p.x-G.W*0.35,0,gp.levelEnd-G.W);
+  gp.t++;
+}
+function collect(b){
+  b.taken=true;gp.collected.push(b.word);
+  addXp(6);S.goalCount++;save();registerActivity();
+  showWordBanner(b.word);speak(b.word.ru);updateHud();
+}
+function loseLife(){
+  gp.lives--;updateHud();
+  if(gp.lives<=0){
+    stopGame();confetti();
+    showModal("💀","Aïe, aïe !","Jean-Claude a un peu trop fêté ça 🍷<br>On réessaie ?",
+      [["🍷 "+gp.collected.length,"mots ramassés"]],"Retour au menu",()=>go("menu"));
+    return;
+  }
+  const p=gp.player;p.x=30;p.y=G.H-78;p.vx=0;p.vy=0;
+  toast("−1 ❤️  Держись!");
+}
+function winLevel(){
+  gp.won=true;stopGame();unlock("hero");addXp(30);registerActivity();confetti();
+  showModal("🏆","Niveau terminé !",
+    `Jean-Claude a atteint le Kremlin 🏰<br>Tu as ramassé <b>${gp.collected.length}</b> mots russes !`,
+    [["+"+(gp.collected.length*6+30),"XP"],["🔥 "+S.streak,"série"]],
+    "Mini-quiz des mots 🍷",()=>startWordQuiz(gp.collected));
+}
+function updateHud(){
+  if(!gp)return;
+  document.getElementById("gLives").textContent="❤️".repeat(Math.max(0,gp.lives));
+  document.getElementById("gWords").textContent="🍷 "+gp.collected.length+"/"+gp.bottles.length;
+}
+let wbT;
+function showWordBanner(w){
+  document.getElementById("wbRu").textContent=w.ru;
+  document.getElementById("wbTr").textContent="[ "+w.tr+" ]";
+  document.getElementById("wbFr").textContent="🇫🇷 "+w.fr;
+  const el=document.getElementById("wordBanner");el.classList.add("show");
+  clearTimeout(wbT);wbT=setTimeout(()=>el.classList.remove("show"),1700);
+}
+function render(){
+  const c=G.ctx,W=G.W,H=G.H,cam=gp.cam,gy=H-38,t=gp.t;
+  // небо
+  let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#8ec9ff");g.addColorStop(1,"#d6efff");
+  c.fillStyle=g;c.fillRect(0,0,W,H);
+  // солнце
+  c.fillStyle="#fff3c4";c.beginPath();c.arc(W-44,46,24,0,7);c.fill();
+  // дальний силуэт Кремля (параллакс)
+  c.save();c.translate(-cam*0.4,0);
+  c.fillStyle="rgba(120,22,61,.35)";
+  for(let i=0;i<8;i++){const bx=120+i*420;c.fillRect(bx,gy-70,90,70);drawDome(c,bx+45,gy-70,14,"rgba(46,141,84,.4)");}
+  c.restore();
+  // облака
+  c.save();c.translate(-cam*0.5,0);c.fillStyle="rgba(255,255,255,.85)";
+  for(let i=0;i<6;i++){const cxp=80+i*520,cyp=50+(i%3)*26;
+    c.beginPath();c.arc(cxp,cyp,16,0,7);c.arc(cxp+18,cyp,20,0,7);c.arc(cxp+40,cyp,15,0,7);c.fill();}
+  c.restore();
+  // мир
+  c.save();c.translate(-cam,0);
+  // платформы
+  for(const pl of gp.platforms){
+    const ground=pl.h>40;
+    c.fillStyle=ground?"#6e6a74":"#b07d4a";c.fillRect(pl.x,pl.y,pl.w,pl.h);
+    c.fillStyle=ground?"#8d8a96":"#caa06a";c.fillRect(pl.x,pl.y,pl.w,5);
+    if(ground){c.fillStyle="rgba(0,0,0,.12)";for(let bx=pl.x;bx<pl.x+pl.w;bx+=26)c.fillRect(bx,pl.y+8,1,pl.h-8);}
+  }
+  // бутылки 🍷
+  c.font="24px serif";c.textBaseline="alphabetic";
+  for(const b of gp.bottles){if(b.taken)continue;const bob=Math.sin((t+b.x)/22)*3;c.fillText("🍷",b.x-2,b.y+24+bob);}
+  // враги 🐻
+  for(const e of gp.enemies){if(!e.alive)continue;c.fillText("🐻",e.x-2,e.y+25);}
+  // финиш — Кремль
+  drawTower(c,gp.flag.x,gy);
+  // игрок
+  drawJC(c,gp.player.x-3,gp.player.y,2,gp.player.face<0);
+  c.restore();
+}
+
+/* управление */
+function setupControls(){
+  const bind=(id,on,off)=>{const el=document.getElementById(id);if(!el)return;
+    const d=e=>{e.preventDefault();on();};const u=e=>{e.preventDefault();off&&off();};
+    el.addEventListener("pointerdown",d);el.addEventListener("pointerup",u);
+    el.addEventListener("pointerleave",u);el.addEventListener("pointercancel",u);};
+  bind("btnLeft",()=>{if(gp)gp.keys.left=true;},()=>{if(gp)gp.keys.left=false;});
+  bind("btnRight",()=>{if(gp)gp.keys.right=true;},()=>{if(gp)gp.keys.right=false;});
+  bind("btnJump",()=>{if(gp)gp.wantJump=true;});
+  document.addEventListener("keydown",e=>{if(cur!=="game"||!gp)return;
+    if(e.key==="ArrowLeft"){gp.keys.left=true;e.preventDefault();}
+    if(e.key==="ArrowRight"){gp.keys.right=true;e.preventDefault();}
+    if(e.key===" "||e.key==="ArrowUp"||e.key==="w"){gp.wantJump=true;e.preventDefault();}});
+  document.addEventListener("keyup",e=>{if(!gp)return;
+    if(e.key==="ArrowLeft")gp.keys.left=false;if(e.key==="ArrowRight")gp.keys.right=false;});
+}
+
+function startWordQuiz(words){
+  const seen={},uniq=[];
+  words.forEach(w=>{if(!seen[w.ru]){seen[w.ru]=1;uniq.push(w);}});
+  if(uniq.length<2){go("menu");return;}
+  const wrapped=uniq.map(w=>({...w,cat:{icon:"🍷",fr:"Платформер"}}));
+  quiz={qs:shuffle(wrapped).slice(0,Math.min(6,wrapped.length)),idx:0,lives:3,correct:0,all:allCards().concat(wrapped)};
+  go("quiz");showQuiz();
+}
+
+/* ============================================================
+   HOME / Уроки
+   ============================================================ */
+function renderHome(){
+  const lv=curLevel(),nx=nextLevel();
+  document.getElementById("tStreak").textContent=S.streak;
+  document.getElementById("tXp").textContent=S.xp;
+  document.getElementById("heroLevelName").textContent=lv.fr;
+  document.getElementById("heroLevelNum").textContent=lv.n;
+  document.getElementById("heroLevelRu").textContent=lv.ru;
+  const base=lv.xp,top=nx?nx.xp:lv.xp;
+  const pct=nx?Math.min(100,Math.round((S.xp-base)/(top-base)*100)):100;
+  document.getElementById("heroBar").style.width=pct+"%";
+  document.getElementById("heroXpNow").textContent=S.xp+" XP";
+  document.getElementById("heroXpNext").textContent=nx?("→ "+nx.xp+" XP"):"MAX 👑";
+  const gc=Math.min(S.goalCount,GOAL);
+  document.getElementById("goalNum").textContent=gc;document.getElementById("goalTgt").textContent=GOAL;
+  document.getElementById("goalRing").style.strokeDashoffset=Math.max(0,163-(gc/GOAL)*163);
+  document.getElementById("goalMsg").textContent=gc>=GOAL?"Objectif atteint ! Tu gères 🏆🍷":"Encore "+(GOAL-gc)+" mots pour valider ta journée !";
+  const wrap=document.getElementById("catList");wrap.innerHTML="";
+  CATS.forEach((c,i)=>{
+    const total=c.cards.length,done=(S.done[c.id]||[]).length,pct=Math.round(done/total*100);
+    const locked=i>0&&((S.done[CATS[i-1].id]||[]).length<Math.ceil(CATS[i-1].cards.length*0.6));
+    const el=document.createElement("button");el.className="cat "+c.color;
+    el.innerHTML=`<span class="emoji">${c.icon}</span><h3>${c.fr}</h3><small>${c.sub} · ${done}/${total}</small>
+      <div class="prog"><i style="width:${pct}%"></i></div>
+      ${locked?`<div class="lock"><span class="lk">🔒</span>Finis le thème précédent</div>`:""}`;
+    el.onclick=locked?(()=>toast("🔒 Termine d'abord le thème précédent !")):(()=>startLesson(c.id));
+    wrap.appendChild(el);
+  });
+}
+
+/* ============================================================
+   Урок (карточки)
+   ============================================================ */
+let lesson=null;
+function startLesson(catId){const c=CATS.find(x=>x.id===catId);
+  lesson={cat:c,idx:0,cards:c.cards,flipped:false,gained:0};go("lesson");showCard();}
+function showCard(){
+  const L=lesson,c=L.cards[L.idx];
+  document.getElementById("lessonTot").textContent=L.cards.length;
+  document.getElementById("lessonNow").textContent=L.idx+1;
+  document.getElementById("lessonBar").style.width=Math.round(L.idx/L.cards.length*100)+"%";
+  L.flipped=false;
+  const fc=document.getElementById("flashCard");
+  fc.innerHTML=`<span class="tag">${L.cat.icon} ${L.cat.ru}</span>
+    <div class="ru">${c.ru}</div><div class="tr">[ ${c.tr} ]</div>
+    <button class="speak" onclick="event.stopPropagation();speak('${c.ru.replace(/'/g,"\\'")}')">🔊 Écouter</button>
+    <div id="flipArea" style="margin-top:6px"></div>`;
+  fc.onclick=flip;
+  document.getElementById("flashBtns").innerHTML=`<button class="btn gold big" style="grid-column:1/3" onclick="flip()">👀 Voir la traduction</button>`;
+}
+function flip(){const L=lesson;if(L.flipped)return;L.flipped=true;const c=L.cards[L.idx];
+  document.getElementById("flipArea").innerHTML=`<div class="fr">🇫🇷 ${c.fr}</div><div class="hint">💡 ${c.hint}</div>`;
+  document.getElementById("flashBtns").innerHTML=`<button class="btn ghost" onclick="nextCard(false)">🤔 Pas encore</button>
+    <button class="btn green" onclick="nextCard(true)">✅ Je sais !</button>`;}
+function nextCard(known){
+  const L=lesson;const key=L.cat.id,cardKey=L.idx;
+  S.done[key]=S.done[key]||[];
+  const firstTime=!(S.learned[key+"_"+cardKey]);
+  if(known){if(!S.done[key].includes(cardKey))S.done[key].push(cardKey);
+    if(firstTime){S.learned[key+"_"+cardKey]=true;S.goalCount++;L.gained+=10;addXp(10);}else{L.gained+=3;addXp(3);}}
+  registerActivity();save();L.idx++;
+  if(L.idx>=L.cards.length){finishLesson();return;}showCard();
+}
+function finishLesson(){
+  const L=lesson,c=L.cat;document.getElementById("lessonBar").style.width="100%";
+  unlock("first");
+  if((S.done[c.id]||[]).length>=c.cards.length){
+    if(c.id==="biz")unlock("biz");if(c.id==="taste")unlock("taste");
+    if(c.id==="slang")unlock("slang");if(c.id==="survive")unlock("survive");}
+  registerActivity();save();confetti();
+  showModal("🍷","Bravo !",`Tu as terminé «${c.fr}» !<br>На здоровье ! 🥂`,
+    [["+"+L.gained,"XP gagnés"],["🔥 "+S.streak,"série"]],"Encore un verre ? 🍇",()=>go("home"));
+}
+
+/* ============================================================
+   Квиз
+   ============================================================ */
+let quiz=null;
+function allCards(){const arr=[];CATS.forEach(c=>c.cards.forEach(card=>arr.push({...card,cat:c})));return arr;}
+function startMixedQuiz(){const pool=allCards();
+  quiz={qs:shuffle(pool).slice(0,8),idx:0,lives:3,correct:0,all:pool};go("quiz");showQuiz();}
+function showQuiz(){
+  const Q=quiz;if(Q.idx>=Q.qs.length||Q.lives<=0){finishQuiz();return;}
+  const card=Q.qs[Q.idx];
+  document.getElementById("quizBar").style.width=Math.round(Q.idx/Q.qs.length*100)+"%";
+  document.getElementById("quizLives").textContent=Q.lives;
+  const askFr=Math.random()<0.5;
+  const prompt=document.getElementById("quizPrompt");
+  const wrongs=shuffle(Q.all.filter(c=>c.ru!==card.ru)).slice(0,3);
+  const opts=shuffle([card,...wrongs]);
+  if(askFr){prompt.innerHTML=`<small>${card.cat.icon} ${card.cat.fr}</small><div class="q">${card.fr}</div><div class="qsub">Choisis la phrase russe 🇷🇺</div>`;}
+  else{prompt.innerHTML=`<small>${card.cat.icon} ${card.cat.fr}</small><div class="q">${card.ru}</div><div class="qsub">[ ${card.tr} ] — что это значит? 🇫🇷</div>
+    <button class="speak" style="margin-top:12px" onclick="speak('${card.ru.replace(/'/g,"\\'")}')">🔊 Écouter</button>`;}
+  const box=document.getElementById("quizOpts");box.innerHTML="";
+  opts.forEach(o=>{const b=document.createElement("button");b.className="opt";
+    b.textContent=askFr?o.ru:o.fr;b.onclick=()=>answer(b,o.ru===card.ru,askFr,card);box.appendChild(b);});
+}
+function answer(btn,correct,askFr,card){
+  const box=document.getElementById("quizOpts");[...box.children].forEach(b=>b.onclick=null);
+  if(correct){btn.classList.add("correct");quiz.correct++;addXp(8);S.goalCount++;save();toast("✅ Верно! +8 XP");}
+  else{btn.classList.add("wrong");quiz.lives--;
+    [...box.children].forEach(b=>{if(b.textContent===(askFr?card.ru:card.fr))b.classList.add("correct");});
+    toast("❌ "+(askFr?card.ru:card.fr));}
+  [...box.children].forEach(b=>{if(!b.classList.contains("correct")&&!b.classList.contains("wrong"))b.classList.add("dim");});
+  registerActivity();setTimeout(()=>{quiz.idx++;showQuiz();},1150);
+}
+function finishQuiz(){
+  const Q=quiz;document.getElementById("quizBar").style.width="100%";
+  const perfect=Q.correct===Q.qs.length&&Q.lives===3;if(perfect)unlock("perfect");
+  confetti();const won=Q.correct;
+  showModal(perfect?"💯":(Q.lives>0?"🎉":"💪"),perfect?"Sans-faute !":(Q.lives>0?"Bien joué !":"Pas mal !"),
+    `<b>${won}/${Q.qs.length}</b> bonnes réponses.<br>${perfect?"Un vrai Russe ! 🐻":"Encore un peu 🍷"}`,
+    [["+"+(won*8),"XP"],["🔥 "+S.streak,"série"]],"Продолжаем! 🍇",()=>go("menu"));
+}
+
+/* ============================================================
+   Шпаргалка
+   ============================================================ */
+function renderPhrase(){
+  const wrap=document.getElementById("phraseList");wrap.innerHTML="";
+  CATS.forEach(c=>{const sec=document.createElement("div");sec.className="panel";
+    let html=`<h3 style="color:var(--bordeaux);font-size:16px;margin-bottom:12px">${c.icon} ${c.fr} <span style="color:#a07a3a;font-size:12px">/ ${c.ru}</span></h3>`;
+    c.cards.forEach(card=>{html+=`<div style="padding:10px 0;border-top:1px solid #f0e3c9"><div style="display:flex;align-items:flex-start;gap:8px">
+      <button class="speak" style="margin:0;padding:7px 11px;font-size:13px" onclick="speak('${card.ru.replace(/'/g,"\\'")}')">🔊</button>
+      <div style="flex:1"><div style="font-weight:800;color:var(--bordeaux);font-size:15px">${card.ru}</div>
+      <div style="font-style:italic;color:#a07a3a;font-size:12px">[ ${card.tr} ]</div>
+      <div style="color:#3a2a30;font-size:13px;margin-top:2px">🇫🇷 ${card.fr}</div></div></div></div>`;});
+    sec.innerHTML=html;wrap.appendChild(sec);});
+}
+
+/* ============================================================
+   Награды
+   ============================================================ */
+function renderAch(){
+  document.getElementById("tStreak").textContent=S.streak;document.getElementById("tXp").textContent=S.xp;
+  document.getElementById("achCount").textContent=Object.keys(S.badges).filter(k=>S.badges[k]).length;
+  const bl=document.getElementById("badgeList");bl.innerHTML="";
+  BADGES.forEach(b=>{const on=!!S.badges[b.id];const el=document.createElement("div");el.className="badge"+(on?" on":"");
+    el.innerHTML=`<div class="bem">${b.em}</div><h4>${on?b.fr:"???"}</h4><p>${b.p}</p>`;bl.appendChild(el);});
+  const ll=document.getElementById("levelList");ll.innerHTML="";const cl=curLevel();
+  LEVELS.forEach(l=>{const reached=S.xp>=l.xp,isCur=l.n===cl.n;const el=document.createElement("div");
+    el.className="lvlcard"+(reached?"":" locked")+(isCur?" current":"");
+    el.innerHTML=`<div class="em">${l.em}</div><div><h4>Niv ${l.n} · ${l.fr}</h4><p>${l.ru}</p></div>
+      <div class="req">${reached?"✅":l.xp+" XP"}</div>`;ll.appendChild(el);});
+}
+
+/* ============================================================
+   Озвучка
+   ============================================================ */
+let ruVoice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();
+  ruVoice=vs.find(v=>/ru[-_]/i.test(v.lang))||vs.find(v=>/russ/i.test(v.name))||null;}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(text){if(!('speechSynthesis' in window)){toast("🔇 Audio non dispo");return;}
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);
+  u.lang="ru-RU";u.rate=.85;if(ruVoice)u.voice=ruVoice;speechSynthesis.speak(u);}
+
+/* ============================================================
+   UI helpers
+   ============================================================ */
+let toastT;
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1600);}
+let _mAct=null;
+function showModal(big,title,text,stats,btn,action){
+  document.getElementById("mBig").textContent=big;document.getElementById("mTitle").textContent=title;
+  document.getElementById("mText").innerHTML=text;document.getElementById("mBtn").textContent=btn||"OK";
+  const st=document.getElementById("mStats");st.innerHTML="";
+  (stats||[]).forEach(s=>{st.innerHTML+=`<div><b>${s[0]}</b><small>${s[1]}</small></div>`;});
+  st.style.display=(stats&&stats.length)?"flex":"none";
+  _mAct=action||null;document.getElementById("modal").classList.add("show");
+}
+function closeModal(){document.getElementById("modal").classList.remove("show");
+  const a=_mAct;_mAct=null;if(a)a();else{if(cur==="home")renderHome();if(cur==="menu")renderMenu();}}
+function levelUpModal(l){confetti();showModal("🆙","Niveau "+l.n+" !",
+  `Tu es maintenant <b>${l.fr}</b><br><i>${l.ru}</i> ${l.em}`,null,"Ура! 🎉");}
+function badgeModal(b){confetti();showModal(b.em,"Badge débloqué !",`<b>${b.fr}</b><br>${b.p}`,null,"Класс! 🏅");}
+function confetti(){const wrap=document.getElementById("confetti");
+  const colors=["#e7b54a","#9b1b3f","#3fae6b","#2f6fed","#fff","#c0392b"];
+  for(let i=0;i<60;i++){const c=document.createElement("i");c.style.left=Math.random()*100+"%";
+    c.style.background=colors[i%colors.length];c.style.animationDuration=(1.6+Math.random()*1.4)+"s";
+    c.style.animationDelay=(Math.random()*.4)+"s";wrap.appendChild(c);setTimeout(()=>c.remove(),3200);}}
+
+function hardReset(){if(confirm("Tout effacer ? / Сбросить весь прогресс?")){
+  lsDel();S=load();renderMenu();toast("🔄 Réinitialisé !");}}
+
+/* ============================================================
+   Старт
+   ============================================================ */
+checkDay();
+setupControls();
+go("splash");
+window.addEventListener("resize",()=>{if(cur==="splash")drawSplash();});
+</script>
+</body>
+</html>
